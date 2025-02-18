@@ -1,0 +1,28 @@
+with data as (
+    select
+        tiv_2015,
+        tiv_2016,
+        concat(lat,lon) as lat_lon
+    from insurance
+
+),
+unique_latlon as (
+    select
+        lat_lon
+    from data
+    group by lat_lon
+    having count(lat_lon) = 1
+),
+duplicate_tiv2015 as (
+    select
+        tiv_2015
+    from data
+    group by tiv_2015
+    having count(tiv_2015) > 1
+)
+
+select
+    round(sum(d.tiv_2016),2) as tiv_2016
+from data as d
+join unique_latlon as ul on ul.lat_lon = d.lat_lon
+join duplicate_tiv2015 as dtiv on dtiv.tiv_2015 = d.tiv_2015
