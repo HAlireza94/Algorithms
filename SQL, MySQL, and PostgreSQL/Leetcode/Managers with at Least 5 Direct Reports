@@ -1,0 +1,6 @@
+select 
+    e.name
+from employee as e
+inner join employee as ee on e.id = ee.managerid
+group by e.id, e.name
+having count(ee.managerid) >= 5
