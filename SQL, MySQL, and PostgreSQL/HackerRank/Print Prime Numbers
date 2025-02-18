@@ -1,0 +1,23 @@
+WITH RECURSIVE Numbers AS (
+    -- Start from the first prime number, 2
+    SELECT 2 AS num
+    UNION ALL
+    -- Generate numbers up to the specified limit (1000 here)
+    SELECT num + 1
+    FROM Numbers
+    WHERE num < 1000
+),
+PrimeCandidates AS (
+    -- Identify prime numbers by filtering out non-primes
+    SELECT num
+    FROM Numbers AS n1
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM Numbers AS n2
+        WHERE n2.num < n1.num
+          AND n2.num > 1
+          AND n1.num % n2.num = 0
+    )
+)
+SELECT GROUP_CONCAT(num SEPARATOR '&') AS Prime_Numbers
+FROM PrimeCandidates;
