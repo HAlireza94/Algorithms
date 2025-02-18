@@ -1,0 +1,20 @@
+WITH june AS (
+SELECT
+  DISTINCT user_id
+
+FROM user_actions
+WHERE EXTRACT(MONTH FROM event_date) = 6),
+
+july AS (
+SELECT
+  DISTINCT user_id
+
+FROM user_actions
+WHERE EXTRACT(MONTH FROM event_date) = 7)
+
+SELECT 
+  7 AS month,
+  COUNT(jy.user_id) AS monthly_active_users
+
+FROM july AS jy
+JOIN june AS je ON je.user_id = jy.user_id
