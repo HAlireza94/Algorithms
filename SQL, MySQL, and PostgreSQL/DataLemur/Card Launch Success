@@ -1,0 +1,43 @@
+WITH myTable AS (SELECT
+  card_name,
+  TO_DATE(CONCAT(issue_year, '-', LPAD(issue_month::TEXT, 2, '0'), '-01'), 'YYYY-MM-DD') AS issue_date,
+  issued_amount
+
+FROM 
+  monthly_cards_issued),
+launch AS (
+SELECT
+  card_name,
+  issued_amount,
+  DENSE_RANK() OVER (PARTITION BY card_name ORDER BY issue_date) AS ranking
+  
+FROM 
+  myTable)
+
+  
+SELECT
+  card_name,
+  issued_amount
+
+FROM launch
+WHERE ranking = 1
+ORDER BY issued_amount DESC
+
+  
+
+  /*mt.issued_amount
+
+FROM myTable AS mt
+INNER JOIN launch AS l ON l.min_issue_date = mt.issue_date*/
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
