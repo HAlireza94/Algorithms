@@ -1,0 +1,11 @@
+SET @index := -1;
+ 
+SELECT
+   ROUND(AVG(m.LAT_N),4) as Median
+FROM
+   (SELECT @index:=@index + 1 AS i,
+           STATION.LAT_N AS LAT_N
+    FROM STATION
+    ORDER BY STATION.LAT_N) AS m
+WHERE 
+m.i IN (CEIL(@index / 2), FLOOR(@index / 2));
