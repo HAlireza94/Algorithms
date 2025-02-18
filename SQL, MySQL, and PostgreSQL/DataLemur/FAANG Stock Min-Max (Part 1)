@@ -1,0 +1,21 @@
+WITH myTable AS (SELECT
+  ticker,
+  MAX(open) as high_open,
+  MIN(open) as low_open
+
+FROM stock_prices
+GROUP by ticker)
+
+
+
+SELECT
+  mt.ticker,
+  TO_CHAR(DATE(sp1.date),'Mon-YYYY') AS highest_mth,
+  mt.high_open AS highest_open,
+  TO_CHAR(DATE(sp2.date),'Mon-YYYY') AS lowest_mth,
+  mt.low_open AS lowest_open
+
+FROM myTable AS mt
+JOIN stock_prices AS sp1 ON sp1.open = mt.high_open
+JOIN stock_prices AS sp2 ON sp2.open = mt.low_open
+ORDER BY mt.ticker
