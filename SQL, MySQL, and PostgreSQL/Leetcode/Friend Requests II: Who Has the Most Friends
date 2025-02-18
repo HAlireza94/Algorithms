@@ -1,0 +1,36 @@
+WITH Friends AS (
+    SELECT 
+        requester_id AS user_id,
+        COUNT(DISTINCT accepter_id) AS num_friends
+    FROM 
+        RequestAccepted
+    GROUP BY 
+        requester_id
+
+    UNION ALL
+
+    SELECT 
+        accepter_id AS user_id,
+        COUNT(DISTINCT requester_id) AS num_friends
+    FROM 
+        RequestAccepted
+    GROUP BY 
+        accepter_id
+),
+AggregatedFriends AS (
+    SELECT 
+        user_id,
+        SUM(num_friends) AS total_friends
+    FROM 
+        Friends
+    GROUP BY 
+        user_id
+)
+SELECT 
+    user_id AS id,
+    total_friends AS num
+FROM 
+    AggregatedFriends
+ORDER BY 
+    total_friends DESC
+LIMIT 1;
