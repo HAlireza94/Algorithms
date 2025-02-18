@@ -1,0 +1,26 @@
+WITH myTable AS (
+  SELECT
+    EXTRACT(YEAR FROM DATE(transaction_date)) AS year,
+    product_id,
+    spend AS curr_year_spend,
+    DENSE_RANK() OVER (PARTITION BY product_id ORDER BY EXTRACT(YEAR FROM DATE(transaction_date))) AS ranking
+  FROM user_transactions
+)
+
+SELECT
+  year,
+  product_id,
+  curr_year_spend,
+  LAG(curr_year_spend) OVER (PARTITION BY product_id ORDER BY year ASC) AS prev_year_spend,
+  CASE 
+    WHEN LAG(curr_year_spend) OVER (PARTITION BY product_id ORDER BY year ASC) IS NULL 
+         OR LAG(curr_year_spend) OVER (PARTITION BY product_id ORDER BY year ASC) = 0 
+    THEN NULL
+    ELSE ROUND(
+      100.0 * (curr_year_spend - LAG(curr_year_spend) OVER (PARTITION BY product_id ORDER BY year ASC))
+      / LAG(curr_year_spend) OVER (PARTITION BY product_id ORDER BY year ASC),
+      2
+    )
+  END AS yoy_rate
+FROM myTable
+ORDER BY product_id, year ASC;
