@@ -1,0 +1,14 @@
+with data as (
+    select
+    customer_id,
+    count(distinct product_key) as cpk
+    from 
+        customer
+    group by 
+        customer_id), total_pk as (select count(product_key) as ccpk from product)
+
+select d.customer_id
+from data as d,total_pk
+where d.cpk = total_pk.ccpk
+
+
