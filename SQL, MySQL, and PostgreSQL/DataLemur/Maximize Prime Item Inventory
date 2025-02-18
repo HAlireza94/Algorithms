@@ -1,0 +1,40 @@
+WITH prime AS (SELECT
+  item_type,
+  count(item_type),
+  sum(square_footage) as total_sf,
+  FLOOR(500000.0/sum(square_footage)) AS numbatch,
+  FLOOR(500000.0/sum(square_footage)) * count(item_type) AS item_count,
+  (500000.0 - FLOOR(500000.0/sum(square_footage)) * sum(square_footage)) AS lefted_sf
+
+FROM inventory
+WHERE item_type = 'prime_eligible'
+GROUP BY item_type), 
+nonprime AS (
+SELECT
+  item_type,
+  count(item_type),
+  sum(square_footage) as total_sf,
+  FLOOR((SELECT lefted_sf FROM prime)/sum(square_footage)) AS numbatch,
+  FLOOR((SELECT lefted_sf FROM prime)/sum(square_footage)) * count(item_type) AS item_count
+  
+
+FROM inventory
+WHERE item_type != 'prime_eligible'
+GROUP BY item_type
+
+)
+
+(SELECT 
+  item_type,
+  item_count
+FROM prime)
+
+UNION ALL
+
+(SELECT 
+  item_type,
+  item_count
+FROM nonprime)
+
+
+
