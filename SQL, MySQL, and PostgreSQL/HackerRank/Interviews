@@ -1,0 +1,48 @@
+SELECT 
+    C.contest_id,
+    C.hacker_id,
+    C.name,
+    COALESCE(SUM(S.ts), 0) AS total_submissions,
+    COALESCE(SUM(S.tas), 0) AS total_accepted_submissions,
+    COALESCE(SUM(VS.tv), 0) AS total_views,
+    COALESCE(SUM(VS.tuv), 0) AS total_unique_views
+FROM 
+    Contests AS C
+JOIN 
+    Colleges AS CO ON CO.contest_id = C.contest_id
+JOIN 
+    Challenges AS CH ON CH.college_id = CO.college_id
+
+LEFT JOIN (
+    SELECT 
+        VSS.challenge_id, 
+        SUM(VSS.total_views) AS tv, 
+        SUM(VSS.total_unique_views) AS tuv
+    FROM 
+        View_Stats AS VSS
+    GROUP BY 
+        VSS.challenge_id
+) AS VS ON VS.challenge_id = CH.challenge_id
+
+LEFT JOIN (
+    SELECT 
+        SS.challenge_id, 
+        SUM(SS.total_submissions) AS ts, 
+        SUM(SS.total_accepted_submissions) AS tas
+    FROM 
+        Submission_Stats AS SS
+    GROUP BY 
+        SS.challenge_id
+) AS S ON S.challenge_id = CH.challenge_id
+
+GROUP BY 
+    C.contest_id, C.hacker_id, C.name
+
+HAVING 
+    COALESCE(total_submissions, 0) +
+    COALESCE(total_accepted_submissions, 0) +
+    COALESCE(total_views, 0) +
+    COALESCE(total_unique_views, 0) > 0
+
+ORDER BY 
+    C.contest_id;
