@@ -1,0 +1,51 @@
+/*WITH current_old_adv_list AS (
+  SELECT 
+    a.user_id,
+    a.status,
+    COALESCE(dp.paid,0) AS paid
+
+  FROM advertiser AS a 
+  LEFT JOIN daily_pay AS dp ON dp.user_id = a.user_id),
+  
+new_ad AS (
+SELECT
+  user_id,
+  'NULL' AS status,
+  paid
+
+FROM daily_pay
+WHERE user_id NOT IN (SELECT user_id FROM current_old_adv_list)
+),
+
+stored_allDate AS (
+(SELECT *
+FROM current_old_adv_list)
+
+UNION ALL
+
+(SELECT *
+FROM new_ad)
+)
+
+
+SELECT
+  user_id,
+  CASE
+    WHEN paid = 0 THEN 'CHURN'
+    WHEN paid != 0 AND status = 'NEW' THEN 'EXISTING'
+    WHEN paid != 0 AND status = 'EXISTING' THEN 'EXISTING'
+    WHEN paid != 0 AND status = 'CHURN' THEN 'RESURRECT'
+    WHEN paid != 0 AND status = 'RESURRECT' THEN 'EXISTING'
+    ELSE 'NEW'
+  END AS new_status
+FROM stored_allDate
+ORDER BY user_id ASC;*/
+
+
+
+
+
+
+
+
+
