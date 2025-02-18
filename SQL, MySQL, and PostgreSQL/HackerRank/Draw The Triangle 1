@@ -1,0 +1,11 @@
+WITH RECURSIVE Pattern AS (
+    -- Start with the maximum number of stars (20) in the first row
+    SELECT 20 AS stars
+    UNION ALL
+    -- Generate each subsequent row with one less star
+    SELECT stars - 1
+    FROM Pattern
+    WHERE stars > 1
+)
+SELECT REPEAT('* ', stars) AS pattern_line
+FROM Pattern;
