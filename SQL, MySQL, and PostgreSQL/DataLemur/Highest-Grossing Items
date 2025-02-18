@@ -1,0 +1,34 @@
+WITH organizing AS (SELECT 
+  category,
+  product,
+  spend
+  
+
+FROM product_spend
+WHERE EXTRACT (YEAR FROM DATE(transaction_date)) = 2022),
+
+filtering AS (
+SELECT
+  category,
+  product,
+  sum(spend) as total,
+  DENSE_RANK() OVER (PARTITION BY category ORDER BY sum(spend) DESC, product) AS ranking
+
+FROM organizing
+GROUP BY category,product
+
+)
+
+SELECT
+  category,
+  product,
+  total AS total_spend
+FROM filtering
+WHERE ranking <=2
+  
+  
+  
+  
+
+
+
