@@ -1,0 +1,37 @@
+WITH TS_OPENING AS (SELECT 
+  user_id,
+  sum(time_spent) AS tso
+
+FROM activities
+WHERE activity_type = 'open'
+GROUP BY user_id),
+
+TS_SENDING AS (SELECT 
+  user_id,
+  sum(time_spent) AS tss
+
+FROM activities
+WHERE activity_type = 'send'
+GROUP BY user_id),
+
+total_time AS (SELECT 
+  t1.user_id,
+  t1.tso + t2.tss AS total
+FROM TS_OPENING as t1
+JOIN TS_SENDING AS t2 ON t2.user_id = t1.user_id)
+
+
+SELECT
+  ab.age_bucket,
+  ROUND(100.0*t2.tss/tt.total,2) AS send_perc,
+  ROUND(100.0*t1.tso/tt.total,2) AS open_perc
+
+FROM total_time as tt
+JOIN TS_SENDING AS t2 ON t2.user_id = tt.user_id
+JOIN TS_OPENING AS t1 ON t1.user_id = tt.user_id
+JOIN age_breakdown AS ab ON ab.user_id = tt.user_id
+ORDER BY age_bucket ASC;
+
+
+
+
