@@ -1,0 +1,48 @@
+WITH filtering AS (
+  SELECT user_id
+  FROM transactions
+  GROUP BY user_id
+  HAVING COUNT(user_id) >= 3
+),
+organized AS (
+  SELECT 
+    f.user_id,
+    t.transaction_date
+  FROM filtering AS f 
+  JOIN transactions AS t ON f.user_id = t.user_id
+  ORDER BY f.user_id, t.transaction_date
+),
+consecutive_days AS (
+  SELECT 
+    user_id,
+    transaction_date,
+    LAG(transaction_date) OVER (PARTITION BY user_id ORDER BY transaction_date) AS previous_transaction_date,
+    EXTRACT(DAY FROM transaction_date - LAG(transaction_date) OVER (PARTITION BY user_id ORDER BY transaction_date)) AS day_difference
+  FROM organized
+),
+IDuser AS (
+SELECT 
+  user_id,
+  transaction_date,
+  previous_transaction_date,
+  day_difference,
+  CASE 
+    WHEN day_difference = 1 THEN 'Yes'
+    ELSE 'No'
+  END AS is_consecutive
+  FROM consecutive_days
+),
+final_filtering AS (
+SELECT 
+  user_id,
+  SUM(CASE WHEN is_consecutive = 'Yes' THEN 1 END) AS summation
+  
+FROM IDuser
+GROUP BY user_id
+
+)
+
+SELECT user_id
+FROM final_filtering
+WHERE summation >= 2
+
