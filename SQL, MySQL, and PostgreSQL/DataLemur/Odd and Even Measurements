@@ -1,0 +1,29 @@
+WITH ranked_measurements AS (
+    SELECT
+        DATE(measurement_time) AS measurement_day,
+        measurement_value,
+        ROW_NUMBER() OVER (
+            PARTITION BY DATE(measurement_time)
+            ORDER BY measurement_time ASC
+        ) AS ranking
+    FROM
+        measurements
+),
+aggregated_sums AS (
+    SELECT
+        measurement_day,
+        SUM(CASE WHEN ranking % 2 = 1 THEN measurement_value ELSE 0 END) AS odd_sum,
+        SUM(CASE WHEN ranking % 2 = 0 THEN measurement_value ELSE 0 END) AS even_sum
+    FROM
+        ranked_measurements
+    GROUP BY
+        measurement_day
+)
+SELECT
+    measurement_day,
+    odd_sum,
+    even_sum
+FROM
+    aggregated_sums
+ORDER BY
+    measurement_day;
