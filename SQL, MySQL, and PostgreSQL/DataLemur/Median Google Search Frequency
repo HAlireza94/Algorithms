@@ -1,0 +1,25 @@
+WITH EXPANDED AS (
+  SELECT 
+    searches
+  FROM 
+    search_frequency,
+    generate_series(1, num_users) AS expanded_users
+),
+SORTED AS (
+  SELECT 
+    searches,
+    ROW_NUMBER() OVER (ORDER BY searches) AS indexing,
+    COUNT(*) OVER () AS total_count
+  FROM 
+    EXPANDED
+)
+SELECT 
+  ROUND(AVG(searches), 1) AS median
+FROM 
+  SORTED
+WHERE 
+  indexing IN (
+    CASE WHEN total_count % 2 = 0 THEN total_count / 2 ELSE (total_count + 1) / 2 END,
+    CASE WHEN total_count % 2 = 0 THEN (total_count / 2) + 1 ELSE (total_count + 1) / 2 END
+  )
+
