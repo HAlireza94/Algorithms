@@ -1,0 +1,24 @@
+WITH organizing AS (SELECT
+  e.department_id,
+  d.department_name,
+  e.name,
+  e.salary
+
+FROM employee AS e
+JOIN department AS d ON e.department_id = d.department_id
+ORDER BY department_name, salary DESC),
+
+filtering AS (SELECT
+  department_name,
+  name,
+  salary,
+  DENSE_RANK() OVER(PARTITION BY department_name ORDER BY salary DESC) AS ranking
+FROM organizing)
+
+SELECT
+  department_name,
+  name,
+  salary
+
+FROM filtering
+WHERE ranking <= 3
