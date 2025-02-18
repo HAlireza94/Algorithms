@@ -1,0 +1,25 @@
+WITH stored AS (SELECT
+  credit_card_id,
+  transaction_timestamp,
+  amount,
+  DENSE_RANK() OVER (PARTITION BY credit_card_id ORDER BY transaction_timestamp) AS indexing
+
+FROM transactions
+ORDER BY credit_card_id, transaction_timestamp),
+not_sameAmount AS (
+SELECT
+    credit_card_id,
+    CASE
+        WHEN COUNT(DISTINCT amount) = 1 THEN 'Same'
+        ELSE 'Different'
+    END AS amount_status
+FROM transactions
+GROUP BY credit_card_id;
+
+)
+
+
+S
+
+
+
