@@ -1,0 +1,13 @@
+WITH mytable AS (SELECT 
+  employee_id,
+  name,
+  salary,
+  manager_id,
+  RANK() OVER (ORDER BY salary DESC)
+FROM employee
+ORDER BY salary DESC)
+
+SELECT
+  salary AS second_highest_salary
+FROM mytable
+WHERE rank = 2
