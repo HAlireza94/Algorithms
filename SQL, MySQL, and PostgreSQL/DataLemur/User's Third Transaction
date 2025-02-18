@@ -1,0 +1,17 @@
+WITH myTable AS (SELECT
+  user_id,
+  spend,
+  transaction_date,
+  DENSE_RANK() OVER(PARTITION BY user_id ORDER BY transaction_date ASC) AS ranking
+
+FROM transactions
+
+ORDER BY user_id)
+
+SELECT
+  user_id,
+  spend,
+  transaction_date
+
+FROM myTable
+WHERE ranking = 3
