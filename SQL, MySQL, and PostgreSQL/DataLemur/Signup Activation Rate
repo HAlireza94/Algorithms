@@ -1,0 +1,10 @@
+WITH myTable AS (SELECT
+  SUM(CASE WHEN signup_action = 'Confirmed' THEN 1 END) AS conf,
+  (SUM(CASE WHEN signup_action = 'Confirmed' THEN 1 END)+SUM(CASE WHEN signup_action != 'Confirmed' THEN 1 END)) AS total
+
+FROM texts)
+
+SELECT
+  ROUND(1.0*conf/total,2)
+
+FROM myTable
